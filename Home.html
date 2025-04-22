@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa Interativo - Unidades de Medicina</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --panel-bg: #f9f9f9;
+      --button-bg: #1976d2;
+      --button-hover: #125ea9;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1e1e1e;
+      --text-color: #ffffff;
+      --panel-bg: #2a2a2a;
+      --button-bg: #4815ef;
+      --button-hover: #2d1991;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    #mapa-brasil {
+      width: 60%;
+      height: 100vh;
+    }
+
+    #painel-detalhes {
+      width: 40%;
+      background-color: var(--panel-bg);
+      padding: 30px;
+      box-sizing: border-box;
+      border-left: 1px solid #440ae4;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    #theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background-color: transparent;
+      cursor: pointer;
+      font-size: 24px;
+      transition: transform 0.4s ease;
+    }
+
+    #theme-toggle.sun {
+      animation: sunrise 0.6s ease forwards;
+    }
+
+    #theme-toggle.moon {
+      animation: moonrise 0.6s ease forwards;
+    }
+
+    @keyframes sunrise {
+      0% { transform: rotate(0deg) scale(0.5); opacity: 0.2; }
+      100% { transform: rotate(360deg) scale(1); opacity: 1; }
+    }
+
+    @keyframes moonrise {
+      0% { transform: rotate(0deg) scale(0.5); opacity: 0.2; }
+      100% { transform: rotate(360deg) scale(1); opacity: 1; }
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .marca-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px;
+      padding: 10px 15px;
+      border: none;
+      background-color: var(--button-bg);
+      color: white;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .marca-button img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      background-color: white;
+      border-radius: 3px;
+    }
+
+    .marca-button:hover {
+      background-color: var(--button-hover);
+    }
+
+    #detalhes-vendor {
+      margin-top: 20px;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="mapa-brasil"></div>
+  <div id="painel-detalhes">
+    <button id="theme-toggle" title="Alternar tema">🌙</button>
+    <button onclick="exibirTodosOsDados()" class="marca-button" style="background-color: #00bfa5;">
+      <img src="https://imgur.com/5wLkoCa.png" alt="ícone" />
+      Ver todos os estados
+    </button>
+    
+    
+    <h2 id="estado-selecionado">Selecione um estado</h2>
+    <div id="marcas-lista"></div>
+    <div id="detalhes-vendor"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const logos = {
+      "UNP": "https://imgur.com/wXnVZm6.png",
+      "UNIFACS": "https://imgur.com/qsecgEn.png",
+      "USJT": "https://imgur.com/ii7VLD7.png",
+      "UAM": "https://imgur.com/kCyupaH.png",
+      "UNA": "https://imgur.com/es2fcNa.png",
+      "FASEH": "https://imgur.com/niWbuY3.png",
+      "JACOBINA": "https://imgur.com/KC2br2M.png",
+      "IRECE": "https://imgur.com/KC2br2M.png",
+      "BURITIS": "https://imgur.com/MGAYmV7.png",
+      "UNIFG-Guanambi": "https://imgur.com/IwAQjsi.png",
+      "UNIFG-São Sebastião": "https://imgur.com/IwAQjsi.png",
+      "UNIFG-Brumado": "https://imgur.com/IwAQjsi.png"
+    };
+
+    const dados = {
+      "Rio Grande do Norte": {
+        marcas: {
+          "UNP": {
+            campus: "Salgado Filho",
+            vendor: "ARUBA",
+            aps: 80,
+            foto: "https://i.imgur.com/IQYXEHw.jpeg",
+            pdf: "https://animaeducacao.sharepoint.com/:b:/r/sites/OperaesTI-BRASIL/Documentos%20Compartilhados/General/0.1%20EKAHAU%20-%20PROJECTS/ESTUDOS%20PRONTOS/NORDESTE/UNP/SALGADO%20FILHO/SITE%20SURVEY%20-%20UNP-SALGADO%20FILHO.pdf?csf=1&web=1&e=gCy0WB"
+          }
+        }
+      },
+      "Bahia": {
+        marcas: {
+          "JACOBINA": { campus: "Jacobina", vendor: "ARUBA", aps: 39, foto: "https://i.imgur.com/LfShK9a.jpeg",
+          pdf: ""
+         },
+          "IRECE": { campus: "Irece", vendor: "ARUBA", aps: 20, foto: "https://i.imgur.com/EEQ3SMj.jpeg",
+          pdf: "https://animaeducacao.sharepoint.com/:b:/r/sites/OperaesTI-BRASIL/Documentos%20Compartilhados/General/0.1%20EKAHAU%20-%20PROJECTS/ESTUDOS%20PRONTOS/NORDESTE/AGES/IRECE/AGES_IRECE%20(inspiralli)/SITE%20SURVEY%20-%20Ages_Irece.pdf?csf=1&web=1&e=a8ohrC"
+         },
+          "UNIFACS": { campus: "CPB", vendor: "RUCKUS", aps: 61, foto: "https://i.imgur.com/T4Odt0P.jpeg",
+          pdf: ""
+         },
+                  "UNIFG-Guanambi": { campus: "Guanambi", vendor: "ARUBA", aps: 62, foto: "https://i.imgur.com/6X1ckmn.jpeg",
+          pdf: ""
+         },
+          "UNIFG-São Sebastião": { campus: "São Sebastião", vendor: "ARUBA", aps: 31, foto: "https://i.imgur.com/1WEPLMm.jpeg",
+          pdf: ""
+         },
+          "UNIFG-Brumado": { campus: "Brumado", vendor: "ARUBA", aps: 24, foto: "https://imgur.com/dPrUPBq.jpeg",
+          pdf: ""
+          }
+        }
+      },
+      "São Paulo": {
+        marcas: {
+          "USJT": { campus: "Cubatão", vendor: "ARUBA", aps: 20, foto: "https://i.imgur.com/bcQMmFx.jpeg",
+            pdf: ""
+           },
+          "UAM": { campus: "Mooca", vendor: "ARUBA", aps: 141, foto: "https://imgur.com/4beBAvq.jpeg",
+            pdf: ""
+           }
+        }
+      },
+      "Minas Gerais": {
+        marcas: {
+          "BURITIS": { campus: "Buritis", vendor: "ARUBA", aps: 236, foto: "https://imgur.com/0m7S5NR.jpeg",
+            pdf: "https://animaeducacao.sharepoint.com/:b:/r/sites/OperaesTI-BRASIL/Documentos%20Compartilhados/General/0.1%20EKAHAU%20-%20PROJECTS/ESTUDOS%20PRONTOS/SUDESTE/UNIBH/01_PRIORIDADE_UNIBH_BURITIS.OLD/ESTUDO_WIFI_UNIBH_VERSAO_02.pdf?csf=1&web=1&e=kpdyO9"
+           },
+          "FASEH": { campus: "Vespasiano", vendor: "ARUBA", aps: 83, foto: "https://i.imgur.com/c5yPJ29.jpeg",
+          pdf: "https://animaeducacao.sharepoint.com/:b:/r/sites/OperaesTI-BRASIL/Documentos%20Compartilhados/General/0.1%20EKAHAU%20-%20PROJECTS/ESTUDOS%20PRONTOS/SUDESTE/FASEH/FASEH_VESPASIANO/SITE%20SURVEY%20-%20Faseh.pdf?csf=1&web=1&e=z4e0gX"
+           }
+        }
+      },
+      "Pará": {
+        marcas: {
+          "UNA": { 
+            campus: "Tucuruí",
+             vendor: "ARUBA",
+           aps: 13,
+            foto: "https://i.imgur.com/qd0mqsb.jpeg",
+             pdf: "https://animaeducacao.sharepoint.com/:b:/r/sites/OperaesTI-BRASIL/Documentos%20Compartilhados/General/0.1%20EKAHAU%20-%20PROJECTS/ESTUDOS%20PRONTOS/NORTE/UNA/TUCURU%C3%8D/UNA_TUCURUI.pdf?csf=1&web=1&e=pbetFG"
+          }
+        }
+      }
+    };
+    const campusPinos = [
+  {
+    estado: "Rio Grande do Norte",
+    marca: "UNP",
+    campus: "Salgado Filho",
+    endereco: "Av. Sen. Salgado Filho, 1610 - Lagoa Nova, Natal - RN, 59056-000",
+    lat: -5.825,
+    lng: -35.211
+  },
+  {
+    estado: "Bahia",
+    marca: "JACOBINA",
+    campus: "Jacobina",
+    endereco: "BR-324, 701 - Pedra Branca, Jacobina - BA, 44700-000",
+    lat: -11.181,
+    lng: -40.511
+  },
+  {
+    estado: "Bahia",
+    marca: "IRECE",
+    campus: "Irecê",
+    endereco: "Rua Atacadã - Irecê, BA, 44900-000",
+    lat: -11.303,
+    lng: -41.853
+  },
+  {
+    estado: "Bahia",
+    marca: "UNIFACS",
+    campus: "CPB",
+    endereco: "Av. Luís Viana Filho, 3100 - Pituaçu, Salvador - BA, 41720-200",
+    lat: -12.981,
+    lng: -38.456
+  },
+  {
+    estado: "Bahia",
+    marca: "UNIFG",
+    campus: "Guanambi",
+    endereco: "Av. Barão do Rio Branco, 459 - Centro, Guanambi - BA, 46430-000",
+    lat: -14.223,
+    lng: -42.779
+  },
+  {
+    estado: "Bahia",
+    marca: "UNIFG",
+    campus: "São Sebastião",
+    endereco: "Av. Pedro Felipe Duarte, 4911 - São Sebastião, Guanambi - BA, 46430-000",
+    lat: -14.226,
+    lng: -42.776
+  },
+  {
+    estado: "Bahia",
+    marca: "UNIFG",
+    campus: "Brumado",
+    endereco: "Brumado, BA, 46100-000",
+    lat: -14.203,
+    lng: -41.665
+  },
+  {
+    estado: "São Paulo",
+    marca: "USJT",
+    campus: "Cubatão",
+    endereco: "R. São Paulo, 328 - Jardim São Francisco, Cubatão - SP, 11500-020",
+    lat: -23.891,
+    lng: -46.426
+  },
+  {
+    estado: "São Paulo",
+    marca: "UAM",
+    campus: "Mooca",
+    endereco: "R. Dr. Almeida Lima, 1134 - Mooca, São Paulo - SP, 03101-001",
+    lat: -23.553,
+    lng: -46.598
+  },
+  {
+    estado: "Minas Gerais",
+    marca: "BURITIS",
+    campus: "Buritis",
+    endereco: "Av. Professor Mário Werneck, 1685 - Buritis, Belo Horizonte - MG, 30575-180",
+    lat: -19.954,
+    lng: -43.973
+  },
+  {
+    estado: "Pará",
+    marca: "UNA",
+    campus: "Tucuruí",
+    endereco: "Av. A, 1006 - Santa Mônica, Tucuruí - PA, 68455-150",
+    lat: -3.765,
+    lng: -49.678
+  },
+  {
+    estado: "Minas Gerais",
+    marca: "FASEH",
+    campus: "Vespasiano",
+    endereco: "R. São Paulo, 958 - Parque Jardim Alterosa, Vespasiano - MG, 33200-000",
+    lat: -19.688,
+    lng: -43.924
+  }
+];
+
+
+    let estadoSelecionadoLayer = null;
+let geojsonLayer = null;
+
+
+    function exibirEstado(estado) {
+      document.getElementById('estado-selecionado').textContent = estado;
+      const marcas = dados[estado]?.marcas;
+      if (!marcas) {
+        document.getElementById('marcas-lista').innerHTML = '<p>Nenhuma marca cadastrada.</p>';
+        document.getElementById('detalhes-vendor').innerHTML = '';
+        return;
+      }
+      const lista = Object.keys(marcas).map(marca => {
+        const logo = logos[marca] ? `<img src="${logos[marca]}" alt="Logo ${marca}">` : '';
+        return `<button class="marca-button" onclick="exibirMarca('${estado}', '${marca}')">${logo}${marca}</button>`;
+      }).join('');
+      document.getElementById('marcas-lista').innerHTML = lista;
+      document.getElementById('detalhes-vendor').innerHTML = '';
+    }
+
+    function exibirMarca(estado, marca) {
+  const info = dados[estado].marcas[marca];
+  document.getElementById('detalhes-vendor').innerHTML = `
+  <div style="background-color: var(--panel-bg); padding: 15px 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); color: var(--text-color);">
+    <p><strong>Marca:</strong> ${marca}</p>
+    <p><strong>Campus:</strong> ${info.campus}</p>
+    <p><strong>Vendor:</strong> ${info.vendor}</p>
+    <p><strong>Access Points:</strong> ${info.aps}</p>
+    ${info.foto ? `<img src="${info.foto}" alt="Foto do campus" style="width:100%;max-width:300px;margin-top:10px;border-radius:6px;">` : ''}
+    ${info.pdf ? `<div style='margin-top:15px; text-align:center;'>
+      <a href='${info.pdf}' target='_blank' style='display:inline-block; padding:10px 20px; font-size:14px; background-color:#1565c0; color:white; border-radius:8px; text-decoration:none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;'>
+        📄 <span style='margin-left:8px;'>Ver Survey Completo</span>
+      </a>
+    </div>` : ''}
+  </div>
+`;
+
+}
+
+    const toggleBtn = document.getElementById("theme-toggle");
+    toggleBtn.addEventListener("click", () => {
+      const html = document.documentElement;
+      const isDark = html.getAttribute("data-theme") === "dark";
+      html.setAttribute("data-theme", isDark ? "light" : "dark");
+      toggleBtn.textContent = isDark ? "☀️" : "🌙";
+      toggleBtn.classList.remove("sun", "moon");
+      toggleBtn.classList.add(isDark ? "sun" : "moon");
+    });
+
+    const map = L.map('mapa-brasil').setView([-15, -55], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Adiciona os pinos no mapa
+campusPinos.forEach(campus => {
+  const logo = logos[campus.marca] ? `<img src="${logos[campus.marca]}" alt="${campus.marca}" style="width: 20px; vertical-align: middle; margin-right: 5px;">` : '';
+  const popupContent = `
+    <div style="font-size: 14px;">
+      ${logo}<strong>${campus.marca}</strong><br>
+      Campus: ${campus.campus}<br>
+      Estado: ${campus.estado}
+    </div>
+  `;
+
+  L.marker([campus.lat, campus.lng])
+    .addTo(map)
+    .bindPopup(popupContent)
+    .on('click', () => exibirEstado(campus.estado));
+});
+
+
+    fetch('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson')
+      .then(res => res.json())
+      .then(data => {
+        geojsonLayer = L.geoJSON(data, {
+  style: feature => {
+    const estado = feature.properties.name;
+    const hasData = dados.hasOwnProperty(estado);
+    return {
+      color: hasData ? '#1976d2' : '#aaa',
+      weight: 1,
+      fillOpacity: hasData ? 0.4 : 0.1,
+      fillColor: hasData ? '#4815ef' : '#f0f0f0'
+    };
+  },
+  onEachFeature: (feature, layer) => {
+  const estado = feature.properties.name;
+  layer.on('click', () => {
+  // 1. Resetar todos os estados
+  geojsonLayer.eachLayer(l => geojsonLayer.resetStyle(l));
+
+  // 2. Limpar variável de destaque anterior
+  estadoSelecionadoLayer = null;
+
+  // 3. Mostrar painel do estado clicado
+  exibirEstado(estado);
+
+  // 4. Aplicar novo destaque
+  estadoSelecionadoLayer = layer;
+  layer.setStyle({
+    color: '#000000',
+    weight: 3,
+    fillOpacity: 0.6
+  });
+  layer.bringToFront();
+  map.fitBounds(layer.getBounds());
+
+});
+
+}
+
+}).addTo(map);
+
+      });
+      function exibirTodosOsDados() {
+
+        if (estadoSelecionadoLayer && geojsonLayer) {
+  geojsonLayer.resetStyle(estadoSelecionadoLayer);
+  estadoSelecionadoLayer = null;
+}
+map.setView([-15, -55], 4); // <- centro do Brasil com zoom padrão
+
+geojsonLayer.eachLayer(layer => {
+  const estado = layer.feature.properties.name;
+  if (dados.hasOwnProperty(estado)) {
+    layer.setStyle({
+      color: '#000',
+      weight: 3,
+      fillOpacity: 0.6
+    });
+    layer.bringToFront();
+  } else {
+    geojsonLayer.resetStyle(layer); // mantém padrão para estados sem dados
+  }
+});
+
+  document.getElementById('estado-selecionado').textContent = 'Todos os Estados';
+  const lista = [];
+  let totalAPs = 0;
+
+  for (const estado in dados) {
+    const marcas = dados[estado].marcas;
+    for (const marca in marcas) {
+      const info = marcas[marca];
+      const logo = logos[marca] ? `<img src="${logos[marca]}" alt="Logo ${marca}" style="width: 28px; height: 28px; border-radius: 4px; margin-right: 10px;">` : '';
+
+lista.push(
+  `<div style="display: flex; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 8px;">
+    ${logo}
+    <div>
+      <strong>${marca}</strong> - ${info.campus} (${estado})<br>
+      Vendor: ${info.vendor}<br>
+      APs: ${info.aps}
+    </div>
+  </div>`
+);
+      totalAPs += info.aps;
+    }
+  }
+
+  document.getElementById('marcas-lista').innerHTML = '';
+  document.getElementById('detalhes-vendor').innerHTML = `
+  <div style="background-color: var(--panel-bg); padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); color: var(--text-color);">
+    <strong style="font-size: 16px;">📊 Total de Access Points:</strong>
+    <span style="font-size: 16px; font-weight: bold; margin-left: 8px;">${totalAPs}</span>
+  </div>
+  ${lista.map(html => `
+    <div style="background-color: var(--bg-color); color: var(--text-color); padding: 12px 15px; margin-bottom: 12px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #ccc;">
+      ${html}
+    </div>
+  `).join('')}
+`;
+
+
+}
+
+  </script>
+</body>
+</html>
