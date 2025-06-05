@@ -1,0 +1,123 @@
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --panel-bg: #f9f9f9;
+  --button-bg: #1976d2;
+  --button-hover: #125ea9;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1e1e1e;
+  --text-color: #ffffff;
+  --panel-bg: #2a2a2a;
+  --button-bg: #4815ef;
+  --button-hover: #2d1991;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+#mapa-brasil {
+  height: 50vh;
+  width: 100%;
+}
+
+#painel-detalhes {
+  background-color: var(--panel-bg);
+  padding: 30px;
+  box-sizing: border-box;
+  border-top: 1px solid #440ae4;
+}
+
+@media (min-width: 768px) {
+  body {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+  }
+  #mapa-brasil {
+    width: 60%;
+    height: 100vh;
+  }
+  #painel-detalhes {
+    width: 40%;
+    height: 100vh;
+    border-left: 1px solid #440ae4;
+    border-top: none;
+    overflow-y: auto;
+  }
+}
+
+#theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 24px;
+  transition: transform 0.4s ease;
+}
+
+#theme-toggle.sun {
+  animation: sunrise 0.6s ease forwards;
+}
+
+#theme-toggle.moon {
+  animation: moonrise 0.6s ease forwards;
+}
+
+@keyframes sunrise {
+  0% { transform: rotate(0deg) scale(0.5); opacity: 0.2; }
+  100% { transform: rotate(360deg) scale(1); opacity: 1; }
+}
+
+@keyframes moonrise {
+  0% { transform: rotate(0deg) scale(0.5); opacity: 0.2; }
+  100% { transform: rotate(360deg) scale(1); opacity: 1; }
+}
+
+h2 {
+  margin-top: 0;
+}
+
+.marca-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  background-color: var(--button-bg);
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.marca-button img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  background-color: white;
+  border-radius: 3px;
+}
+
+.marca-button:hover {
+  background-color: var(--button-hover);
+}
+
+#detalhes-vendor {
+  margin-top: 20px;
+  background-color: #333;
+  padding: 10px;
+  border-radius: 5px;
+}
