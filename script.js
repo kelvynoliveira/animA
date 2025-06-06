@@ -192,6 +192,26 @@ function exibirEstado(estado) {
   }).join('');
   document.getElementById('marcas-lista').innerHTML = lista;
   document.getElementById('detalhes-vendor').innerHTML = '';
+  document.title = `WIFI - ${estado}`;
+   document.getElementById('painel-detalhes').scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+function showPDFModal(url) {
+  const modal = document.createElement('div');
+  modal.className = 'pdf-modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <iframe src="${url}" frameborder="0"></iframe>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  
+  modal.querySelector('.close-modal').addEventListener('click', () => {
+    modal.remove();
+  });
 }
 
 function exibirMarca(estado, marca) {
@@ -225,9 +245,8 @@ toggleBtn.addEventListener("click", () => {
 
 // Configuração do mapa
 const map = L.map('mapa-brasil').setView([-15, -55], 4);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
 
 // Adiciona os pinos no mapa
 campusPinos.forEach(campus => {
@@ -333,15 +352,16 @@ function exibirTodosOsDados() {
   }
 
   document.getElementById('marcas-lista').innerHTML = '';
-  document.getElementById('detalhes-vendor').innerHTML = `
-  <div style="background-color: var(--panel-bg); padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); color: var(--text-color);">
-    <strong style="font-size: 16px;">📊 Total de Access Points:</strong>
-    <span style="font-size: 16px; font-weight: bold; margin-left: 8px;">${totalAPs}</span>
-  </div>
-  ${lista.map(html => `
-    <div style="background-color: var(--bg-color); color: var(--text-color); padding: 12px 15px; margin-bottom: 12px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #ccc;">
-      ${html}
+document.getElementById('detalhes-vendor').innerHTML = `
+  <div class="total-container">
+    <div class="total-card">
+      <div class="total-icon">📶</div>
+      <div>
+        <div class="total-label">Total de Access Points</div>
+        <div class="total-value">${totalAPs}</div>
+      </div>
     </div>
-  `).join('')}
+    ${lista.join('')}
+  </div>
 `;
 }
