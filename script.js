@@ -439,3 +439,5 @@ function trackPDFOpen(estado, marca) {
 
 // Inicializa o aplicativo quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', init);
+window.exibirMarca = exibirMarca;
+window.exibirTodosOsDados = exibirTodosOsDados;
