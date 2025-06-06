@@ -223,11 +223,11 @@ function exibirMarca(estado, marca) {
     <p><strong>Vendor:</strong> ${info.vendor}</p>
     <p><strong>Access Points:</strong> ${info.aps}</p>
     ${info.foto ? `<img src="${info.foto}" alt="Foto do campus" style="width:100%;max-width:300px;margin-top:10px;border-radius:6px;">` : ''}
-    ${info.pdf ? `<div style='margin-top:15px; text-align:center;'>
-      <a href='${info.pdf}' target='_blank' style='display:inline-block; padding:10px 20px; font-size:14px; background-color:#1565c0; color:white; border-radius:8px; text-decoration:none; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;'>
-        📄 <span style='margin-left:8px;'>Ver Survey Completo</span>
-      </a>
-    </div>` : ''}
+${info.pdf ? `<div style='margin-top:15px; text-align:center;'>
+  <button onclick="showPDFModal('${info.pdf}')" class="pdf-button">
+    📄 Ver Survey Completo
+  </button>
+</div>` : ''}
   </div>
 `;
 }

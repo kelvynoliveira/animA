@@ -8,23 +8,24 @@ h2 {
 }
 
 :root {
+  /* Cores base */
   --bg-color: #ffffff;
   --text-color: #000000;
   --panel-bg: #f9f9f9;
-  --button-bg: #1976d2;
-  --button-hover: #125ea9;
-    --primary: #6C63FF;       /* Roxo moderno */
-  --secondary: #4DCCC6;     /* Turquesa */
-  --dark: #1A1A2E;         /* Azul escuro */
-  --light: #F5F5F7;        /* Cinza claro */
-  --success: #00C9A7;      /* Verde água */
   
-  /* Sombras modernas */
+  /* Cores modernas */
+  --primary: #6C63FF;
+  --secondary: #4DCCC6;
+  --dark: #1A1A2E;
+  --light: #F5F5F7;
+  --success: #00C9A7;
+  
+  /* Sombras */
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
   
-  /* Bordas arredondadas */
+  /* Bordas */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -34,12 +35,13 @@ h2 {
   --bg-color: #1e1e1e;
   --text-color: #ffffff;
   --panel-bg: #2a2a2a;
-  --button-bg: #4815ef;
-  --button-hover: #2d1991;
+  --primary: #8A7CFF;
+  --secondary: #6CE6DE;
+  --dark: #0F0F1A;
+  --light: #2A2A3C;
 }
 
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
@@ -59,10 +61,6 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-right: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-[data-theme="dark"] #painel-detalhes {
-  background: rgba(26, 26, 46, 0.7);
 }
 
 @media (min-width: 768px) {
@@ -158,12 +156,6 @@ h2 {
   transition: transform 0.3s ease;
 }
 
-[data-theme="dark"] {
-  --primary: #8A7CFF;
-  --secondary: #6CE6DE;
-  --dark: #0F0F1A;
-  --light: #2A2A3C;
-}
 .total-container {
   display: grid;
   gap: 16px;
@@ -272,4 +264,22 @@ h2 {
   max-width: 300px;
   margin-top: 10px;
   border-radius: var(--radius-sm);
+}
+.pdf-button {
+  padding: 10px 20px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pdf-button:hover {
+  background: var(--secondary);
+  transform: translateY(-2px);
+}
+#detalhes-vendor:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
