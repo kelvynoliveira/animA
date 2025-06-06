@@ -148,9 +148,6 @@ const map = L.map('mapa-brasil').setView([-15, -55], 4);
 // FUNÇÕES PRINCIPAIS
 // =============================================
 
-/**
- * Inicializa o aplicativo
- */
 function init() {
   configurarTema();
   configurarMapa();
@@ -158,9 +155,6 @@ function init() {
   adicionarMarcadores();
 }
 
-/**
- * Configura o tema claro/escuro
- */
 function configurarTema() {
   const toggleBtn = document.getElementById("theme-toggle");
   toggleBtn.addEventListener("click", () => {
@@ -173,9 +167,6 @@ function configurarTema() {
   });
 }
 
-/**
- * Configuração básica do mapa
- */
 function configurarMapa() {
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 }
@@ -200,16 +191,20 @@ function carregarGeoJSON() {
 
 // Função para obter o caminho da logo
 function getLogoPath(marca) {
-  const formatos = ['jpg', 'png', 'webp', 'jpeg'];
   const marcaFormatada = marca.toUpperCase();
-  
-  for (const formato of formatos) {
-    const caminho = `LOGOS/${marcaFormatada}.${formato}`;
-    // Em produção, verifique se o arquivo existe
-    return caminho; // Assumindo que existe
+  const extensoes = ['png', 'jpg', 'jpeg', 'webp'];
+
+  for (const ext of extensoes) {
+    const caminho = `./LOGOS/${marcaFormatada}.${ext}`;
+    const img = new Image();
+    img.src = caminho;
+
+    // Esse truque tenta carregar a imagem e retorna quando possível
+    if (img.complete) return caminho;
   }
-  
-  return 'LOGOS/anima.png'; // Fallback
+
+  // Se nada funcionar, retorna imagem padrão
+  return './LOGOS/anima.png';
 }
 
 function estiloEstado(feature) {
