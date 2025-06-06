@@ -72,11 +72,11 @@ const DADOS = {
         foto: getFotoPath("UNIFG", "GUANAMBI"),
         pdf: "https://animaeducacao.sharepoint.com/:b:/r/sites/OperaesTI-BRASIL/Documentos%20Compartilhados/General/0.1%20EKAHAU%20-%20PROJECTS/ESTUDOS%20PRONTOS/NORDESTE/UNIFG%20(BA)/UNIFG_GUANAMBI_SEDE/Site%20Survey%20-%20São%20Sebastião.pdf?csf=1&web=1&e=MwyN6G"
       },
-      "UNIFG|GUANAMBI2": {
+      "UNIFG|VASCODAGAMA": {
         campus: "GUANAMBI2",
         vendor: "ARUBA",
         aps: 34,
-        foto: getFotoPath("UNIFG", "GUANAMBI2"),
+        foto: getFotoPath("UNIFG", "VASCODAGAMA"),
         pdf: "https://animaeducacao.sharepoint.com/:b:/r/sites/OperaesTI-BRASIL/Documentos%20Compartilhados/General/0.1%20EKAHAU%20-%20PROJECTS/ESTUDOS%20PRONTOS/NORDESTE/UNIFG%20(BA)/UNIFG_GUANAMBI_VASCO%20DA%20GAMA/Site%20Survey%20-%20Vasco%20da%20Gama.pdf?csf=1&web=1&e=ep3533"
       },
       "UNIFG|BRUMADO": {
@@ -211,9 +211,6 @@ function getLogoPath(marca) {
   
   return 'LOGOS/anima.png'; // Fallback
 }
-
-// Exemplo de uso no código:
-const logoPath = getLogoPath(campus.Marca, campus.Campus);
 
 function estiloEstado(feature) {
   const estado = feature.properties.name;
