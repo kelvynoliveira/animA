@@ -198,38 +198,46 @@ function exibirEstado(estado) {
     behavior: 'smooth'
   });
 }
-function showPDFModal(url) {
-  const modal = document.createElement('div');
-  modal.className = 'pdf-modal';
-  modal.innerHTML = `
-    <div class="modal-content">
-      <button class="close-modal">&times;</button>
-      <iframe src="${url}" frameborder="0"></iframe>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  
-  modal.querySelector('.close-modal').addEventListener('click', () => {
-    modal.remove();
-  });
+function abrirPDF(estado, campus) {
+  const pdfPath = `pdfs/${estado}/${campus.replace(/\s+/g, '_')}.pdf`;
+  window.open(pdfPath, '_blank');
 }
+//function showPDFModal(url) {
+//  const modal = document.createElement('div');
+//  modal.className = 'pdf-modal';
+//  modal.innerHTML = `
+//    <div class="modal-content">
+//      <button class="close-modal">&times;</button>
+//      <iframe src="${url}" frameborder="0"></iframe>
+//    </div>
+//  `;
+//  document.body.appendChild(modal);
+//  
+//  modal.querySelector('.close-modal').addEventListener('click', () => {
+//    modal.remove();
+//  });
+//}
 
 function exibirMarca(estado, marca) {
   const info = dados[estado].marcas[marca];
   document.getElementById('detalhes-vendor').innerHTML = `
-  <div style="background-color: var(--panel-bg); padding: 15px 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); color: var(--text-color);">
-    <p><strong>Marca:</strong> ${marca}</p>
-    <p><strong>Campus:</strong> ${info.campus}</p>
-    <p><strong>Vendor:</strong> ${info.vendor}</p>
-    <p><strong>Access Points:</strong> ${info.aps}</p>
-    ${info.foto ? `<img src="${info.foto}" alt="Foto do campus" style="width:100%;max-width:300px;margin-top:10px;border-radius:6px;">` : ''}
-${info.pdf ? `<div style='margin-top:15px; text-align:center;'>
-  <button onclick="showPDFModal('${info.pdf}')" class="pdf-button">
-    📄 Ver Survey Completo
-  </button>
-</div>` : ''}
-  </div>
-`;
+    <div class="detalhes-container">
+      <!-- ... outros conteúdos ... -->
+      ${info.pdf ? `
+      <div class="pdf-link-container">
+        <a href="${info.pdf}" target="_blank" class="pdf-button" 
+           onclick="trackPDFOpen('${estado}','${marca}')">
+          📄 Ver Survey Completo
+        </a>
+      </div>` : ''}
+    </div>
+  `;
+}
+
+// Função opcional para analytics
+function trackPDFOpen(estado, marca) {
+  console.log(`PDF aberto: ${marca} - ${estado}`);
+  // Adicione aqui tracking (Google Analytics, etc)
 }
 
 // Configuração do tema
