@@ -22,32 +22,17 @@ const ESTADOS_MAP = {
 };
 
 function getFotoPath(marca, campus) {
-  // Padroniza nomes removendo acentos, espaços e caracteres especiais
+  const basePath = './IMG';
+  const extensoes = ['.jpg', '.jpeg', '.png', '.webp'];
   const marcaFormatada = marca.toUpperCase();
   const campusFormatado = campus
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove acentos
-    .replace(/\s+/g, '_') // Substitui espaços por _
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, '_')
     .toUpperCase();
 
-  // Mapeamento de extensões suportadas
-  const extensoes = ['.jpg', '.jpeg', '.png', '.webp'];
-  
-  // Caminho base
-  const basePath = './IMG';
-
-  // Verifica as extensões possíveis
-  for (const ext of extensoes) {
-    const caminho = `${basePath}/${marcaFormatada}/${campusFormatado}${ext}`;
-    // Em produção, você verificaria se o arquivo existe
-    // Aqui assumimos que existe pelo menos uma versão
-    if (caminho) return caminho;
-  }
-
-  // Fallback para uma imagem padrão se não encontrar
-  return './IMG/default.jpg';
+  return `${basePath}/${marcaFormatada}/${campusFormatado}.jpg`; 
 }
 
-// Dados completos das instituições (estrutura mais limpa)
 const DADOS = {
   "Bahia": {
     marcas: {
